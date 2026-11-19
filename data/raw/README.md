@@ -1,0 +1,1 @@
+O arquivo original `caso_full.csv.gz` (aprox. 92 MB) não é versionado. Rode `python -m src.etl --download` na raiz do projeto. A URL e o SHA-256 da versão efetivamente analisada constam em `data/processed/manifest.json`.

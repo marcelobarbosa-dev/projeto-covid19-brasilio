@@ -1,0 +1,278 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Estudo reproduzível de COVID-19 e qualidade de dados Brasil.IO"><meta name="author" content="Marcelo Barbosa de Oliveira Junior"><title>Evolução da COVID-19 no Brasil e qualidade dos registros municipais (2020–2022)</title><style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --text: #1f2937;
+      --text-muted: #4b5563;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --code-bg: #f1f5f9;
+      --font-serif: "Merriweather", Georgia, serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text);
+      background-color: var(--bg);
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--surface);
+      padding: 3.5rem 4rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+    }
+
+    /* Cabeçalho Acadêmico */
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    h1.paper-title {
+      font-family: var(--font-sans);
+      font-size: 2.1rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--primary);
+      margin-bottom: 1.2rem;
+    }
+
+    .meta-block {
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 0.8rem;
+    }
+
+    .authors {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .affiliations {
+      font-style: italic;
+    }
+
+    .repo-badge {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.4rem 0.8rem;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-decoration: none;
+      color: var(--primary);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: background 0.2s ease;
+    }
+
+    .repo-badge:hover {
+      background: #e2e8f0;
+    }
+
+    /* Abstract / Resumo */
+    .abstract-box {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      border-left: 4px solid var(--primary-light);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .abstract-box h3 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+
+    .abstract-box p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .keywords {
+      margin-top: 0.8rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* Navegação / Sumário */
+    nav.toc {
+      font-family: var(--font-sans);
+      background: #fdfefe;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.2rem 1.8rem;
+      margin-bottom: 2.5rem;
+    }
+
+    nav.toc h4 {
+      font-size: 1rem;
+      color: var(--primary);
+      margin-bottom: 0.6rem;
+    }
+
+    nav.toc ol {
+      padding-left: 1.2rem;
+    }
+
+    nav.toc li {
+      margin: 0.3rem 0;
+    }
+
+    nav.toc a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.92rem;
+    }
+
+    nav.toc a:hover {
+      color: var(--primary-light);
+      text-decoration: underline;
+    }
+
+    /* Seções e Tipografia */
+    section {
+      margin-bottom: 2.5rem;
+    }
+
+    h2 {
+      font-family: var(--font-sans);
+      font-size: 1.45rem;
+      font-weight: 600;
+      color: var(--primary);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.4rem;
+      margin-bottom: 1rem;
+      margin-top: 2rem;
+    }
+
+    p {
+      margin-bottom: 1.2rem;
+      text-align: justify;
+    }
+
+    /* Figuras, Visualizações e Códigos */
+    figure {
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    .chart-container {
+      width: 100%;
+      min-height: 420px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    figcaption {
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.6rem;
+      text-align: center;
+    }
+
+    pre, code {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.9rem;
+      background-color: var(--code-bg);
+    }
+
+    code {
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+    }
+
+    pre {
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin-bottom: 1.2rem;
+      border: 1px solid var(--border);
+    }
+
+    /* Callouts e FAIR box */
+    .fair-box {
+      font-family: var(--font-sans);
+      border: 1px solid #bfdbfe;
+      background-color: #eff6ff;
+      border-radius: 6px;
+      padding: 1.25rem;
+      margin-top: 2rem;
+    }
+
+    .fair-box h3 {
+      font-size: 1rem;
+      color: #1e40af;
+      margin-bottom: 0.5rem;
+    }
+
+    .fair-box ul {
+      margin-left: 1.2rem;
+      font-size: 0.92rem;
+      color: #1e3a8a;
+    }
+
+    /* Referências */
+    .references ol {
+      padding-left: 1.2rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .references li {
+      margin-bottom: 0.6rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1.5rem;
+      }
+      h1.paper-title {
+        font-size: 1.6rem;
+      }
+    }
+  
+figure img {width:100%;height:auto;display:block} figure {margin:1.7rem 0} .badges {display:flex;flex-wrap:wrap;gap:.45rem;margin:1rem 0} .badges span{font:600 .72rem/1.5 Arial,sans-serif;background:#eef4fc;color:#1e3a8a;padding:.25rem .7rem;border-radius:1rem} h3 {margin-top:1.6rem} footer{margin-top:3rem;border-top:1px solid #d9e0ea;padding-top:1rem;color:#4b5563;font:.8rem Arial,sans-serif} pre{overflow-x:auto} a{overflow-wrap:anywhere} @media(max-width:768px){body{padding:.4rem}.container{padding:1.25rem}}
+</style></head><body><main class="container">
+<header><h1 class="paper-title">Evolução da COVID-19 no Brasil e qualidade dos registros municipais (2020–2022)</h1><div class="meta-block authors">Marcelo Barbosa de Oliveira Junior</div><div class="meta-block affiliations">Universidade La Salle · Bacharelado em Sistemas de Informação · 6º período<br>Disciplina: Linguagem de Programação (Análise e Visualização de Dados com Python)<br>Professor orientador: nome a confirmar</div><div class="badges"><span>Pesquisa quantitativa</span><span>Brasil.IO · caso_full</span><span>Python · FAIR</span></div><a class="repo-badge" href="https://github.com/marcelobarbosa-dev/projeto-covid19-brasilio" target="_blank" rel="noopener">Repositório e código-fonte</a></header>
+<div class="abstract-box"><h3>Resumo</h3><p>Este estudo examina a evolução dos casos e óbitos por COVID-19 no Brasil e a qualidade dos registros municipais disponibilizados pelo Brasil.IO. O arquivo caso_full reúne boletins das secretarias estaduais de saúde e registros preenchidos para datas sem nova publicação. Um pipeline em Python processou 3.853.648 linhas em blocos, separou observações estaduais das municipais, preservou revisões negativas e calculou médias móveis em dias com registros das 27 unidades federativas. No recorte de 2020-02-25 a 2022-03-27, o maior valor da média móvel de casos comunicados foi 189.243 por dia em 2022-01-29; para óbitos, 3.112 por dia em 2021-04-11. Na comparação da última observação estadual, a incidência variou de 5.996 a 25.809 casos por 100 mil habitantes. Entre 3.833.529 linhas municipais, 1.015.288 (26,5%) carregam valores repetidos. Os resultados descrevem datas de publicação e casos confirmados, sujeitos a subnotificação, atraso de boletins e diferenças de testagem. O estudo oferece arquivos abertos, dicionário de dados e código reproduzível conforme princípios FAIR.</p><p class="keywords"><strong>Palavras-chave:</strong> COVID-19; Brasil.IO; análise exploratória; qualidade de dados; ciência aberta.</p></div>
+<nav class="toc" aria-label="Sumário"><h4>Sumário</h4><ol><li><a href="#intro">Introdução</a></li><li><a href="#metodologia">Metodologia</a></li><li><a href="#resultados">Resultados e discussão</a></li><li><a href="#conclusao">Conclusão</a></li><li><a href="#fair">Disponibilidade e FAIR</a></li><li><a href="#referencias">Referências</a></li></ol></nav>
+<section id="intro"><h2>1. Introdução</h2><p>Dados abertos permitem estudar a pandemia em diferentes escalas, mas acumulados estaduais e municipais coexistem na mesma tabela e a cobertura temporal é completada pela repetição de valores anteriores. Uma soma indiferenciada duplicaria totais; zeros em dias repetidos podem refletir a ausência de boletim.</p><p><strong>RQ1.</strong> Como evoluíram os casos e óbitos comunicados pelas 27 UFs em dias de cobertura completa? <strong>RQ2.</strong> Como varia a incidência acumulada entre as UFs no último registro disponível? <strong>RQ3.</strong> Qual a frequência de registros municipais repetidos e de revisões negativas?</p></section>
+<section id="metodologia"><h2>2. Metodologia e pipeline de dados</h2><p>Fonte: Secretarias de Saúde das Unidades Federativas, dados tratados por Álvaro Justen e colaboradores/Brasil.IO. A tabela <code>caso_full</code> contém uma linha por local e data e repete o último valor disponível quando não há boletim novo. A versão utilizada tem SHA-256 <code>dd60678588f09c46e867284887067e0a002a448e846aff3734374bfc19e87dd5</code>, 3.853.648 linhas e período 2020-02-25 a 2022-03-27. Foram excluídas 0 linhas com chave temporal/espacial inválida; revisões negativas foram preservadas e contabilizadas.</p><pre><code>for chunk in pd.read_csv(source, compression="gzip", chunksize=150_000):
+    chunk["date"] = pd.to_datetime(chunk["date"], errors="coerce")
+    states = chunk.loc[chunk["place_type"].eq("state")]
+    # As linhas municipais são analisadas separadamente para qualidade.
+national = states.groupby("date")["new_confirmed"].sum()</code></pre><p>O ETL converte datas e números, valida as chaves <code>state</code>/<code>date</code>, não preenche contagens ausentes com zero e preserva revisões. Para totais nacionais, utiliza somente <code>place_type=state</code> e dias com 27 UFs (737 datas). Médias móveis exigem sete dias consecutivos na série filtrada; a incidência usa a estimativa populacional de 2019, com fallback documentado. As comparações entre UFs usam o último registro de cada uma, que pode ter datas distintas; não representam um painel perfeitamente sincronizado.</p></section>
+<section id="resultados"><h2>3. Resultados e discussão</h2><h3>RQ1 · Evolução temporal</h3><p>O pico da média móvel de novos casos comunicados foi 189.243 por dia em 2022-01-29; o de óbitos foi 3.112 por dia em 2021-04-11. As curvas medem registros publicados, e oscilações refletem tanto a pandemia quanto o calendário de notificações. Não se infere uma causa a partir de coincidência temporal.</p><figure><img src="assets/casos.svg" alt="Série temporal da média móvel de casos comunicados"><figcaption>Figura 1. Casos comunicados, média móvel de 7 dias; somente dias com 27 UFs. Fonte: Brasil.IO, processamento próprio.</figcaption></figure><figure><img src="assets/obitos.svg" alt="Série temporal da média móvel de óbitos comunicados"><figcaption>Figura 2. Óbitos comunicados, média móvel de 7 dias; mesma cobertura. Fonte: Brasil.IO, processamento próprio.</figcaption></figure><h3>RQ2 · Diferenças estaduais</h3><p>A incidência acumulada no último registro por UF variou de 5.996 por 100 mil habitantes (MA, data 2022-03-27) a 25.809 (ES, data 2022-03-27). A razão entre esses extremos foi 4,3 vezes. Diferenças de testagem, população estimada e atualização de boletins impedem ler a ordenação como medida isolada de transmissão real.</p><figure><img src="assets/incidencia.svg" alt="Barras horizontais da incidência acumulada por UF"><figcaption>Figura 3. Incidência acumulada no último registro disponível por UF. Fonte: Brasil.IO, processamento próprio.</figcaption></figure><h3>RQ3 · Qualidade do registro</h3><p>Das 3.833.529 observações municipais, 1.015.288 (26,5%) foram assinaladas como repetidas. A maior proporção estadual foi 47,9% em MG. Foram identificadas 44.842 linhas municipais com revisão negativa em casos ou óbitos (uma linha com ambos conta duas vezes na soma de indicadores). A frequência de repetição varia por local e não indica, por si, erro no dado: documenta a diferença entre data da linha e data do boletim.</p><figure><img src="assets/repeticoes.svg" alt="Proporção de observações municipais repetidas por UF"><figcaption>Figura 4. Registros municipais repetidos por UF, todo o período. Fonte: Brasil.IO, processamento próprio.</figcaption></figure></section>
+<section id="conclusao"><h2>4. Conclusão</h2><p>As respostas às três perguntas mostram ondas de casos e óbitos notificados, variação espacial na incidência acumulada e grande presença de datas preenchidas a partir de boletins anteriores. A separação entre registros municipais e estaduais é decisiva para evitar dupla contagem. O estudo é descritivo: casos dependem de testagem e notificação, óbitos sofrem atrasos e revisões, a população é estimada e a última data difere entre UFs. Trabalhos futuros podem comparar datas de boletim, usar séries por município com critérios de cobertura e relacionar resultados com políticas e dados de testagem.</p></section>
+<section id="fair"><h2>5. Disponibilidade dos dados e declaração FAIR</h2><div class="fair-box"><p><strong>Localizável:</strong> README com autoria, resumo, palavras-chave, URL da fonte e hash da versão. <strong>Acessível:</strong> código e artigo estático; dados brutos disponíveis em acesso público no Brasil.IO. <strong>Interoperável:</strong> CSV/CSV.gz, datas ISO 8601 e <code>data/data_dictionary.md</code>. <strong>Reutilizável:</strong> código MIT; derivados e texto CC BY-SA 4.0 com atribuição à fonte, dependências fixadas e instruções de reprodução.</p></div><pre><code>git clone https://github.com/marcelobarbosa-dev/projeto-covid19-brasilio
+cd projeto-covid19-brasilio
+python -m venv .venv
+python -m pip install -r requirements.txt
+python -m src.etl --download
+python -m src.render_article</code></pre><p>Para repetir exatamente esta versão, preserve o arquivo bruto cujo SHA-256 aparece na seção 2; o download futuro pode disponibilizar uma versão diferente.</p></section>
+<section id="referencias" class="references"><h2>6. Referências</h2><ol><li>BRASIL.IO. <em>COVID-19: tabela caso_full</em>. Disponível em: <a href="https://brasil.io/dataset/covid19/caso_full/">brasil.io/dataset/covid19/caso_full/</a>. Acesso em: 18 nov. 2026.</li><li>JUSTEN, Álvaro et al. <em>covid19-br: documentação e licença dos dados</em>. Disponível em: <a href="https://github.com/turicas/covid19-br/blob/master/api.md">github.com/turicas/covid19-br</a>. Acesso em: 18 nov. 2026.</li><li>WILKINSON, Mark D. et al. The FAIR Guiding Principles for scientific data management and stewardship. <em>Scientific Data</em>, v. 3, 160018, 2016. DOI: 10.1038/sdata.2016.18.</li></ol></section><footer>Marcelo Barbosa de Oliveira Junior · artigo produzido a partir de dados abertos</footer></main></body></html>

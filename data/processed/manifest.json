@@ -1,0 +1,14 @@
+{
+  "source": "https://data.brasil.io/dataset/covid19/caso_full.csv.gz",
+  "source_sha256": "dd60678588f09c46e867284887067e0a002a448e846aff3734374bfc19e87dd5",
+  "raw_rows": 3853648,
+  "invalid_key_rows_excluded": 0,
+  "negative_daily_rows_preserved": 43915,
+  "state_rows": 20119,
+  "city_rows": 3833529,
+  "first_date": "2020-02-25",
+  "last_date": "2022-03-27",
+  "complete_national_days": 737,
+  "state_count_latest": 27,
+  "population_note": "2019 preferred; estimated_population fallback when 2019 missing"
+}

@@ -1,0 +1,1 @@
+Arquivos gerados pelo ETL a partir do Brasil.IO. Redistribuição e adaptações dos dados sob CC BY-SA 4.0, com atribuição às Secretarias de Saúde das Unidades Federativas e a Álvaro Justen e colaboradores/Brasil.IO. Os arquivos CSV e JSON deste diretório integram o repositório; o bruto de 92 MB é baixado pelo script.
