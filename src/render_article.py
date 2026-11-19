@@ -10,6 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from .analysis import summarize
 from .etl import OUT, ROOT
 
 DOCS = ROOT / "docs"
@@ -27,6 +28,10 @@ def run():
     daily = pd.read_csv(OUT / "national_daily.csv.gz", parse_dates=["date"])
     latest = pd.read_csv(OUT / "state_latest.csv", parse_dates=["date"])
     quality = pd.read_csv(OUT / "quality_by_state.csv")
+    stats = summarize()
+    spikes = pd.read_csv(OUT / "reporting_spikes.csv", parse_dates=["date"])
+    if stats["source_sha256"] != meta["source_sha256"]:
+        raise ValueError("O resumo estatístico não corresponde à versão da fonte")
     end = daily.date.max().date()
     peak_cases = daily.loc[daily.cases_7d.idxmax()]
     peak_deaths = daily.loc[daily.deaths_7d.idxmax()]
@@ -68,6 +73,25 @@ def run():
     ax.grid(axis="y", alpha=.2)
     fig.savefig(ASSETS / "repeticoes.svg"); plt.close(fig)
 
+    fig, ax = plt.subplots(figsize=(10, 4.6))
+    ax.scatter(spikes.date, spikes.ratio, color="#b45343", s=20, alpha=.8,
+               label="Dia sinalizado")
+    ax.axhline(stats["reporting_spikes"]["upper_fence_ratio"], color="#1e3a8a",
+               linestyle="--", label="Limite de 1,5 × IQR")
+    ax.set(title="Picos de notificações em relação à mediana dos 7 dias anteriores",
+           ylabel="Razão diária", xlabel="Data")
+    ax.legend(frameon=False); ax.grid(axis="y", alpha=.2)
+    fig.autofmt_xdate(); fig.savefig(ASSETS / "picos_notificacao.svg"); plt.close(fig)
+
+    fig, ax = plt.subplots(figsize=(8.7, 5.3))
+    ax.scatter(latest.incidence_100k, latest.case_fatality_pct, color="#3974aa", alpha=.8)
+    for row in latest.itertuples():
+        ax.annotate(row.state, (row.incidence_100k, row.case_fatality_pct),
+                    xytext=(3, 3), textcoords="offset points", fontsize=7)
+    ax.set(title="Incidência e razão óbitos/casos confirmados nas 27 UFs",
+           xlabel="Casos confirmados / 100 mil habitantes", ylabel="Óbitos / casos confirmados (%)")
+    ax.grid(alpha=.2); fig.savefig(ASSETS / "correlacao_ufs.svg"); plt.close(fig)
+
     # O estilo e a ordem de seções seguem o template HTML disponibilizado pelo docente.
     template = (ROOT / "src/template_style.css").read_text(encoding="utf-8")
     title = "Evolução da COVID-19 no Brasil e qualidade dos registros municipais (2020–2022)"
@@ -81,7 +105,9 @@ def run():
                f"{fmt(peak_deaths.deaths_7d)} por dia em {peak_deaths.date.date()}. Na comparação da última observação "
                f"estadual, a incidência variou de {fmt(lowest.incidence_100k)} a {fmt(highest.incidence_100k)} "
                f"casos por 100 mil habitantes. Entre {fmt(rows)} linhas municipais, {fmt(repeats)} "
-               f"({fmt(100*repeats/rows,1)}%) carregam valores repetidos. Os resultados descrevem datas de publicação "
+               f"({fmt(100*repeats/rows,1)}%) carregam valores repetidos. A mediana da incidência entre UFs foi "
+               f"{fmt(stats['incidence']['median'])} por 100 mil e {stats['reporting_spikes']['count']} dias "
+               f"foram sinalizados como picos relativos de notificação. Os resultados descrevem datas de publicação "
                f"e casos confirmados, sujeitos a subnotificação, atraso de boletins e diferenças de testagem. O estudo "
                f"oferece arquivos abertos, dicionário de dados e código reproduzível conforme princípios FAIR.")
     repo = "https://github.com/marcelobarbosa-dev/projeto-covid19-brasilio"
@@ -105,6 +131,71 @@ python -m pip install -r requirements.txt
 python -m src.etl --download
 python -m src.render_article</code></pre><p>Para repetir exatamente esta versão, preserve o arquivo bruto cujo SHA-256 aparece na seção 2; o download futuro pode disponibilizar uma versão diferente.</p></section>
 <section id="referencias" class="references"><h2>6. Referências</h2><ol><li>BRASIL.IO. <em>COVID-19: tabela caso_full</em>. Disponível em: <a href="https://brasil.io/dataset/covid19/caso_full/">brasil.io/dataset/covid19/caso_full/</a>. Acesso em: 18 nov. 2026.</li><li>JUSTEN, Álvaro et al. <em>covid19-br: documentação e licença dos dados</em>. Disponível em: <a href="https://github.com/turicas/covid19-br/blob/master/api.md">github.com/turicas/covid19-br</a>. Acesso em: 18 nov. 2026.</li><li>WILKINSON, Mark D. et al. The FAIR Guiding Principles for scientific data management and stewardship. <em>Scientific Data</em>, v. 3, 160018, 2016. DOI: 10.1038/sdata.2016.18.</li></ol></section><footer>Marcelo Barbosa de Oliveira Junior · artigo produzido a partir de dados abertos</footer></main></body></html>'''
+    inc = stats["incidence"]
+    rpt = stats["repeated"]
+    spike = stats["reporting_spikes"]
+    method_extra = (f"<p><strong>Auditoria de nulos:</strong> o manifesto registra a ausência em cada coluna bruta. "
+                    f"Nos {fmt(meta['state_rows'])} registros estaduais, casos, óbitos e população utilizados nas "
+                    f"métricas não apresentam nulos; nessas variáveis nenhuma imputação foi necessária. Nulos "
+                    f"municipais permanecem ausentes, sem conversão em zero. O bruto tem checksum SHA-256 "
+                    f"fixado no ETL; uma versão alterada é recusada por padrão. Picos relativos usam a razão "
+                    f"entre casos do dia e a mediana dos sete dias anteriores, apenas com sete datas consecutivas "
+                    f"e mediana acima de 100. O limite superior é Q3 + 1,5 × (Q3 − Q1) dessa razão, uma "
+                    f"regra descritiva de identificação de extremos, não um teste de causalidade.</p>")
+    body = body.replace("<h2>2. Metodologia e pipeline de dados</h2>",
+                        "<h2>2. Metodologia e pipeline de dados</h2>" + method_extra, 1)
+
+    extra_results = f'''<h3>RQ1 · Dispersão e valores extremos de notificações</h3>
+<p>Entre {fmt(spike['candidate_days'])} dias elegíveis, {fmt(spike['count'])} ultrapassaram a razão de {fmt(spike['upper_fence_ratio'],2)} entre casos comunicados no dia e a mediana dos sete dias anteriores. O maior valor ocorreu em {spike['top_date']}: {fmt(spike['top_cases'])} casos, equivalentes a {fmt(spike['top_ratio'],2)} vezes a mediana anterior ({fmt(spike['top_baseline'])}). A triagem identifica saltos nos <em>boletins</em>; não autoriza afirmar que houve aumento súbito de infecções naquela data.</p>
+<figure><img src="assets/picos_notificacao.svg" alt="Picos relativos de notificações sinalizados pela regra do intervalo interquartil"><figcaption>Figura 5. Dias acima da cerca superior de Tukey para a razão de notificações; método e janela definidos na seção 2. Fonte: Brasil.IO, processamento próprio.</figcaption></figure>
+<h3>RQ2 · Dispersão e associação entre indicadores</h3>
+<p>Em {fmt(stats['states'])} UFs, a incidência acumulada teve mediana de {fmt(inc['median'])} casos/100 mil, Q1 de {fmt(inc['q1'])}, Q3 de {fmt(inc['q3'])} e intervalo interquartil de {fmt(inc['iqr'])}. O desvio padrão amostral foi {fmt(inc['std_sample'])}; o coeficiente de variação, {fmt(inc['cv_pct'],1)}%. A correlação de postos de Spearman entre incidência e razão óbitos/casos confirmados foi {fmt(stats['rank_correlation_incidence_case_fatality'],2)} (27 UFs, descritiva, sem teste de significância). Os dois índices compartilham casos confirmados no cálculo e dependem da testagem; portanto a associação não demonstra proteção ou causalidade.</p>
+<figure><img src="assets/correlacao_ufs.svg" alt="Dispersão da incidência e proporção óbitos sobre casos por UF"><figcaption>Figura 6. Relação exploratória entre incidência e razão óbitos/casos confirmados, último registro das 27 UFs. Fonte: Brasil.IO, processamento próprio.</figcaption></figure>
+<p><strong>Variação na qualidade:</strong> a proporção de registros municipais repetidos por UF teve mediana de {fmt(rpt['state_median_pct'],1)}%, Q1 de {fmt(rpt['state_q1_pct'],1)}% e Q3 de {fmt(rpt['state_q3_pct'],1)}%. A média ponderada por linha, {fmt(rpt['pct'],1)}%, responde a uma pergunta diferente da mediana das 27 UFs.</p>
+<div class="explorer"><label for="metric-choice">Explore o indicador por UF:</label> <select id="metric-choice"><option value="incidencia">Incidência / 100 mil</option><option value="letalidade">Óbitos / casos confirmados (%)</option><option value="repetidos">Registros municipais repetidos (%)</option></select><div id="metric-bars" role="list" aria-live="polite"></div><p class="note">Gráfico interativo: selecione a métrica para comparar as 27 UFs. A razão óbitos/casos não equivale à letalidade entre infectados.</p></div>'''
+    boundary = '</section>\n<section id="conclusao">'
+    assert body.count(boundary) == 1
+    body = body.replace(boundary, extra_results + boundary, 1)
+
+    body = body.replace("a população é estimada e a última data difere entre UFs.",
+                        "a população é estimada e o período termina em março de 2022.", 1)
+    body = body.replace("O estudo é descritivo: casos dependem de testagem e notificação,",
+                        "Picos de notificação, dispersão estadual e correlação ampliam a resposta exploratória, mas não identificam causas. O estudo é descritivo: casos dependem de testagem e notificação,", 1)
+    body = body.replace("python -m src.render_article</code>",
+                        "python -m src.analysis\npython -m notebooks.build_notebook\npython -m src.render_article</code>", 1)
+    refs = ('''<li>PANDAS DEVELOPMENT TEAM. <em>pandas documentation: windowing operations</em>. Disponível em: <a href="https://pandas.pydata.org/docs/user_guide/window.html">pandas.pydata.org/docs/user_guide/window.html</a>. Acesso em: 19 nov. 2026.</li>'''
+            '''<li>NUMPY DEVELOPERS. <em>NumPy statistics reference</em>. Disponível em: <a href="https://numpy.org/doc/stable/reference/routines.statistics.html">numpy.org/doc/stable/reference/routines.statistics.html</a>. Acesso em: 19 nov. 2026.</li>'''
+            '''<li>MATPLOTLIB DEVELOPMENT TEAM. <em>Matplotlib documentation</em>. Disponível em: <a href="https://matplotlib.org/stable/">matplotlib.org/stable/</a>. Acesso em: 19 nov. 2026.</li>'''
+            '''<li>NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. <em>Box Plot</em>. Disponível em: <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/boxplot.htm">itl.nist.gov/div898/handbook/eda/section3/boxplot.htm</a>. Acesso em: 19 nov. 2026.</li>''')
+    body = body.replace('</ol></section><footer>', refs + '</ol></section><footer>', 1)
+
+    enriched = latest.merge(quality[["state", "repeated_pct"]], on="state", validate="one_to_one")
+    payload = json.dumps([{"uf": r.state, "incidencia": round(r.incidence_100k, 1),
+                           "letalidade": round(r.case_fatality_pct, 2),
+                           "repetidos": round(r.repeated_pct, 1)} for r in enriched.itertuples()],
+                         ensure_ascii=False)
+    script = '''<script>
+const stateData = __PAYLOAD__;
+const select = document.getElementById('metric-choice');
+const bars = document.getElementById('metric-bars');
+function renderMetric() {
+  const key = select.value;
+  const data = [...stateData].sort((a,b) => b[key] - a[key]);
+  const max = data[0][key];
+  bars.replaceChildren();
+  for (const item of data) {
+    const row = document.createElement('div'); row.className = 'metric-row'; row.role = 'listitem';
+    const label = document.createElement('strong'); label.textContent = item.uf;
+    const track = document.createElement('div'); track.className = 'metric-track';
+    const fill = document.createElement('div'); fill.className = 'metric-fill';
+    fill.style.width = (100 * item[key] / max).toFixed(2) + '%'; track.append(fill);
+    const value = document.createElement('span'); value.textContent = item[key].toLocaleString('pt-BR');
+    row.append(label, track, value); bars.append(row);
+  }
+}
+select.addEventListener('change', renderMetric); renderMetric();
+</script>'''.replace('__PAYLOAD__', payload)
+    body = body.replace('</body>', script + '</body>', 1)
     (DOCS / "index.html").write_text(body, encoding="utf-8")
     print(f"Artigo: {DOCS / 'index.html'}; {len(summary.split())} palavras no resumo")
 

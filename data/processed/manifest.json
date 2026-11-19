@@ -1,9 +1,21 @@
 {
   "source": "https://data.brasil.io/dataset/covid19/caso_full.csv.gz",
   "source_sha256": "dd60678588f09c46e867284887067e0a002a448e846aff3734374bfc19e87dd5",
+  "reference_sha256": "dd60678588f09c46e867284887067e0a002a448e846aff3734374bfc19e87dd5",
+  "source_update_explicitly_allowed": false,
   "raw_rows": 3853648,
+  "missing_values_by_raw_column": {
+    "last_available_confirmed": 0,
+    "new_confirmed": 0,
+    "last_available_deaths": 0,
+    "new_deaths": 0,
+    "estimated_population_2019": 13646,
+    "estimated_population": 13646,
+    "is_repeated": 0
+  },
   "invalid_key_rows_excluded": 0,
   "negative_daily_rows_preserved": 43915,
+  "duplicate_state_date_rows": 0,
   "state_rows": 20119,
   "city_rows": 3833529,
   "first_date": "2020-02-25",

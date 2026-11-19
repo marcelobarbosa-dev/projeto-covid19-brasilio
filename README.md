@@ -6,11 +6,11 @@
 
 ## Resumo executivo
 
-Análise descritiva dos boletins das Secretarias de Saúde das UFs, tratados por Álvaro Justen e colaboradores/Brasil.IO. Respondemos: (1) como variaram os casos e óbitos comunicados em dias com 27 UFs; (2) como variou a incidência acumulada estadual na última data disponível; (3) qual a frequência de linhas municipais repetidas e revisões negativas. A versão da base foi congelada por SHA-256 em `data/processed/manifest.json`. O artigo inclui quatro gráficos em SVG, metodologia, resultados e limitações. A fonte contém 3.853.648 observações até 27/03/2022; **não representa a situação atual da COVID-19**.
+Análise descritiva dos boletins das Secretarias de Saúde das UFs, tratados por Álvaro Justen e colaboradores/Brasil.IO. Respondemos: (1) como variaram casos, óbitos e picos de notificação em dias com 27 UFs; (2) como variou a incidência acumulada estadual na última data disponível; (3) qual a frequência de linhas municipais repetidas e revisões negativas. A versão da base foi congelada por SHA-256 em `data/processed/manifest.json`. O artigo inclui seis gráficos em SVG, uma visualização interativa, metodologia, resultados e limitações. A fonte contém 3.853.648 observações até 27/03/2022; **não representa a situação atual da COVID-19**.
 
 ## Reproduzir
 
-Requer Python 3.11+ e aproximadamente 1 GB de espaço temporário. Na raiz:
+Requer Python 3.12 e aproximadamente 1 GB de espaço temporário. Na raiz:
 
 ```bash
 python -m venv .venv
@@ -18,25 +18,29 @@ python -m venv .venv
 # Windows PowerShell: .venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
 python -m src.etl --download
+python -m src.analysis
+python -m notebooks.build_notebook
 python -m src.render_article
 ```
 
-O download (~92 MB comprimidos) é público e não necessita token. Se um bloqueio temporário impedir o download automatizado, obtenha o [CSV completo no Brasil.IO](https://data.brasil.io/dataset/covid19/caso_full.csv.gz) e salve como `data/raw/caso_full.csv.gz`; rode `python -m src.etl`. Para reproduzir **exatamente** os resultados fornecidos, use um bruto cujo SHA-256 corresponda a `data/processed/manifest.json`; um download posterior pode ter outra versão. Rodar o pipeline escreve `data/processed/*.csv*`, `manifest.json` e regenera `docs/index.html` e `docs/assets/*.svg`.
+O download (~92 MB comprimidos) é público e não necessita token. Se um bloqueio temporário impedir o download automatizado, obtenha o [CSV completo no Brasil.IO](https://data.brasil.io/dataset/covid19/caso_full.csv.gz) e salve como `data/raw/caso_full.csv.gz`; rode `python -m src.etl`. O ETL confere o SHA-256 de referência e **interrompe** se a fonte foi atualizada, para impedir misturar resultados de versões diferentes. Para analisar explicitamente uma versão nova, rode `python -m src.etl --allow-source-update` e revise todos os resultados e interpretações antes de publicar. O pipeline escreve `data/processed/*.csv*`, `manifest.json`, `analysis_summary.json`, o notebook executado e regenera `docs/index.html` e `docs/assets/*.svg`.
 
 ## Estrutura e decisões
 
 ```text
 data/raw/                 original via script, fora do Git (>50 MB)
-data/processed/           painéis agregados, qualidade e manifesto de origem
+data/processed/           painéis, qualidade, picos, resumo e manifesto
 data/data_dictionary.md   campos originais e derivados
 src/etl.py                download, validação, agregações em blocos
+src/analysis.py           estatísticas e picos de notificação auditáveis
 src/render_article.py     figuras e artigo baseado nos dados processados
-notebooks/analise_exploratoria.ipynb   exploração reexecutável
+notebooks/build_notebook.py       gerador/executor do notebook
+notebooks/analise_exploratoria.ipynb   exploração com resultados salvos
 docs/index.html           artigo HTML responsivo para GitHub Pages
-docs/assets/              quatro gráficos vetoriais
+docs/assets/              seis gráficos vetoriais
 ```
 
-O ETL valida datas, UFs e granularidade; rejeita chaves estaduais duplicadas e registra exclusões, sem apagar revisões negativas. Totais nacionais somam somente linhas estaduais, exigem 27 UFs no dia e médias de sete datas consecutivas. O indicador de letalidade por casos confirmados não é probabilidade de morte após infecção. [Dicionário completo](data/data_dictionary.md).
+O ETL valida datas, UFs e granularidade; rejeita chaves estaduais duplicadas e registra exclusões e nulos, sem apagar revisões negativas. Totais nacionais somam somente linhas estaduais, exigem 27 UFs no dia e médias de sete datas consecutivas. A análise calcula média, mediana, quartis, desvio padrão, IQR e coeficiente de variação da incidência, correlação descritiva de Spearman e picos de notificação por razão acima de Q3 + 1,5×IQR. O indicador de letalidade por casos confirmados não é probabilidade de morte após infecção. [Dicionário completo](data/data_dictionary.md).
 
 ## Publicar no GitHub Pages
 
@@ -47,6 +51,6 @@ O repositório está publicado em [marcelobarbosa-dev/projeto-covid19-brasilio](
 - **F:** README, palavras-chave, autoria, URL estável da fonte e hash da cópia analisada.
 - **A:** repositório e artigo publicáveis sem autenticação; download público do original.
 - **I:** CSV/CSV.gz, UTF-8, datas ISO 8601 e dicionário de dados.
-- **R:** código sob MIT; dados processados e texto derivados da fonte sob [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), com atribuição: “Fonte: Secretarias de Saúde das Unidades Federativas, dados tratados por Álvaro Justen e colaboradores/Brasil.IO”. Dependências diretas fixadas em `requirements.txt`.
+- **R:** código sob MIT; dados processados e texto derivados da fonte sob [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), com atribuição: “Fonte: Secretarias de Saúde das Unidades Federativas, dados tratados por Álvaro Justen e colaboradores/Brasil.IO”. Dependências diretas e transitivas do ambiente fixadas em `requirements.txt`.
 
 O artigo e o código estão publicados nos endereços acima.

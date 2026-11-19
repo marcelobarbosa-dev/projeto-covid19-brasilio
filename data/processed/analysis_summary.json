@@ -1,0 +1,37 @@
+{
+  "source_sha256": "dd60678588f09c46e867284887067e0a002a448e846aff3734374bfc19e87dd5",
+  "states": 27,
+  "latest_dates": [
+    "2022-03-27"
+  ],
+  "incidence": {
+    "min": 5995.592197570634,
+    "q1": 11717.73066961815,
+    "median": 14805.181618201716,
+    "q3": 20347.49903671122,
+    "max": 25809.363841090915,
+    "mean": 16106.36658631356,
+    "std_sample": 5492.43832940641,
+    "iqr": 8629.76836709307,
+    "cv_pct": 34.10103886542374
+  },
+  "rank_correlation_incidence_case_fatality": -0.7442002442002442,
+  "repeated": {
+    "rows": 3833529,
+    "count": 1015288,
+    "pct": 26.48442205602201,
+    "state_q1_pct": 16.244549047119897,
+    "state_median_pct": 24.43527118449719,
+    "state_q3_pct": 31.252831672506602
+  },
+  "reporting_spikes": {
+    "candidate_days": 730,
+    "upper_fence_ratio": 1.961810329035794,
+    "count": 35,
+    "top_date": "2021-09-18",
+    "top_ratio": 9.074117134137481,
+    "top_cases": 124878,
+    "top_baseline": 13762.0
+  },
+  "negative_national_case_days": 1
+}
