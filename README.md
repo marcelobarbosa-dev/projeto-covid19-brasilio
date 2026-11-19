@@ -1,6 +1,6 @@
 # Evolução da COVID-19 no Brasil e qualidade dos registros (2020–2022)
 
-**Autor:** Marcelo Barbosa de Oliveira Junior · Universidade La Salle · Bacharelado em Sistemas de Informação, 6º período · Linguagem de Programação (Análise e Visualização de Dados com Python) · 2026. **Professor orientador:** nome a confirmar.
+**Autor:** Marcelo Barbosa de Oliveira Junior · Universidade La Salle · Bacharelado em Sistemas de Informação, 6º período · Linguagem de Programação (Análise e Visualização de Dados com Python) · 2026. **Professor orientador:** Alexandre Louzada.
 
 **Artigo:** [abrir artigo HTML](docs/index.html) · **Fonte:** [Brasil.IO — COVID-19, `caso_full`](https://brasil.io/dataset/covid19/caso_full/) · **Palavras-chave:** COVID-19; boletins estaduais; qualidade de dados; ciência aberta; FAIR.
 
@@ -40,7 +40,7 @@ O ETL valida datas, UFs e granularidade; rejeita chaves estaduais duplicadas e r
 
 ## Publicar no GitHub Pages
 
-Crie um repositório público chamado `projeto-covid19-brasilio` na conta `marcelobarbosa-dev`, envie o conteúdo desta pasta e em **Settings → Pages → Build and deployment** selecione **Deploy from a branch**, a branch principal e **/docs**. Preencha o nome do professor em `src/render_article.py` e regenere o artigo. URL esperada: `https://marcelobarbosa-dev.github.io/projeto-covid19-brasilio/`. O deploy depende do envio à conta e da ativação do GitHub Pages.
+O repositório está publicado em [marcelobarbosa-dev/projeto-covid19-brasilio](https://github.com/marcelobarbosa-dev/projeto-covid19-brasilio) e o artigo em [GitHub Pages](https://marcelobarbosa-dev.github.io/projeto-covid19-brasilio/). O Pages usa a branch `main` e a pasta `/docs`.
 
 ## FAIR e licenças
 
@@ -49,4 +49,4 @@ Crie um repositório público chamado `projeto-covid19-brasilio` na conta `marce
 - **I:** CSV/CSV.gz, UTF-8, datas ISO 8601 e dicionário de dados.
 - **R:** código sob MIT; dados processados e texto derivados da fonte sob [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), com atribuição: “Fonte: Secretarias de Saúde das Unidades Federativas, dados tratados por Álvaro Justen e colaboradores/Brasil.IO”. Dependências diretas fixadas em `requirements.txt`.
 
-O repositório local está pronto para publicação, mas ainda não possui URL pública nem o nome do professor confirmado.
+O artigo e o código estão publicados nos endereços acima.
